@@ -264,7 +264,7 @@
 
 
 import React, { useState, useEffect } from "react";
-import API from "../../api/axios.js"; 
+import API from "../../api/axios"; 
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
   BarChart, Bar, PieChart, Pie, Cell,
@@ -299,7 +299,8 @@ export default function Analytics() {
     const fetchAnalytics = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`/api/analytics/summary?range=${range}`);
+        // Using your custom configured API instance instead of raw axios
+        const response = await API.get(`/analytics/summary?range=${range}`);
         if (response.data.success) {
           setAnalyticsData(response.data.data);
         }
