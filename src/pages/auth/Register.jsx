@@ -239,7 +239,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Store, Mail, Lock, Phone, User, Eye, EyeOff, ShieldCheck, Loader2, AlertCircle } from "lucide-react";
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../context/AuthContext";
 import { registerVendor } from "../../api/authApi.js";
 
 export default function Register() {
