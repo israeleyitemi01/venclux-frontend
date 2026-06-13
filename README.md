@@ -1,16 +1,31 @@
-# React + Vite
+# Venclux Storefront & Administrative Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Venclux is a vertical Micro-SaaS e-commerce infrastructure built to enable vendors to instantaneously provision custom digital storefronts. This repository houses the client-side single-page application (SPA), featuring a comprehensive vendor administration dashboard, multi-part form asset upload management pipelines, real-time live preview configuration states, and a fast, responsive public marketplace layer.
 
-Currently, two official plugins are available:
+## 🚀 Technical Stack
+- **Core Engine:** React 18 (Hooks, Dynamic Context API Architecture)
+- **Build Toolchain:** Vite JS (Hot Module Replacement)
+- **Styling Framework:** Tailwind CSS
+- **Iconography Suite:** Lucide React
+- **Network Layer:** Axios (Centralized Instance Interceptors configuration)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🛠️ System Features
+- **Dynamic Vendor Sub-slug Routing:** Automatic string parsing for customized `/shop/:storeSlug` routes.
+- **Media Asset Integration:** Directly handles file state buffering before passing binary payload streams safely to Cloudinary CDN configurations.
+- **Client-Side Reactive Cart System:** Persisted context layers for multi-product state modifications and dynamic checkout computations.
+- **Granular Filter Matrix:** Client-side combined category selection and regex-matching search parameters processing.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 💻 Local Development Setup
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 1. Prerequisites
+Ensure you have **Node.js (v18.x or higher)** and **npm (v9.x or higher)** installed on your machine.
+
+### 2. Installation
+Navigate into the client folder directory and fetch system packages:
+```bash
+cd frontend
+npm install
