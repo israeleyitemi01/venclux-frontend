@@ -24,7 +24,7 @@ import StoreSettings from "../../components/settingsModal/Store";
 import NotificationsSettings from "../../components/settingsModal/Notifications";
 import SecuritySettings from "../../components/settingsModal/Security";
 import BillingSettings from "../../components/settingsModal/Billing";
-import { SectionCard, FormField } from "../../components/settingsModal/Shared";
+import { SectionCard, FormField, ToggleRow } from "../../components/settingsModal/Shared";
 
 /* ─────────────────────────────────────────────
    Tab pill nav
@@ -63,6 +63,37 @@ export default function Settings() {
     reader.onloadend = () => setProfile((p) => ({ ...p, avatar: reader.result }));
     reader.readAsDataURL(file);
   };
+
+  /* ── Store state ── */
+  const [store, setStore] = useState({
+    storeName: "Luxe Boutique",
+    storeSlug: "luxe-boutique",
+    currency: "NGN",
+    language: "en",
+    timezone: "Africa/Lagos",
+    country: "Nigeria",
+  });
+  const handleStore = (e) => setStore((p) => ({ ...p, [e.target.name]: e.target.value }));
+
+  /* ── Notifications state ── */
+  const [notifs, setNotifs] = useState({
+    newOrder: true,
+    orderPaid: true,
+    lowStock: true,
+    customerMsg: true,
+    weeklyReport: true,
+    promotions: false,
+  });
+  const toggleNotif = (key) => setNotifs((p) => ({ ...p, [key]: !p[key] }));
+
+  /* ── Security state ── */
+  const [passwords, setPasswords] = useState({ current: "", newPass: "", confirm: "" });
+  const handlePassword = (e) => setPasswords((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const [twoFA, setTwoFA] = useState(false);
+  const [sessions, setSessions] = useState([
+    { device: "MacBook Pro", location: "Lagos, NG", time: "Active now", current: true },
+    { device: "iPhone 14", location: "Lagos, NG", time: "2 hours ago", current: false },
+  ]);
 
   const saveToast = (msg = "Changes saved") => alert(msg); // placeholder — swap for toast lib
 
