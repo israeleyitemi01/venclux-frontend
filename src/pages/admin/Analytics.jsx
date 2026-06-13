@@ -264,7 +264,7 @@
 
 
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // Replace with your custom API/Axios instance config if necessary
+import API from "../../api/axios.js"; 
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
   BarChart, Bar, PieChart, Pie, Cell,
