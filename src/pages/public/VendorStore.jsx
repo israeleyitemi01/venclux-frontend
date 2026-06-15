@@ -451,8 +451,11 @@ export default function VendorStore() {
                   <p className="text-xs text-slate-500 mt-1 line-clamp-1">
                     {product.description}
                   </p>
-                  <div className="mt-3 mb-4 font-bold text-slate-900">
-                    ₦{product.price.toLocaleString()}
+                  <div className="flex items-center justify-between mt-3 mb-4">
+                    <p className="font-bold text-slate-900">₦{product.price.toLocaleString()}</p>
+                    <p className={`text-xs ${product.stock < 10 ? 'text-rose-500 font-semibold' : 'text-slate-500'}`}>
+                      {product.stock || 0} left
+                    </p>
                   </div>
 
                   <button

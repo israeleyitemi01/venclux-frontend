@@ -144,19 +144,18 @@
 
 
 import React, { useState, useEffect } from "react";
-import { Search, Plus, Pencil, Trash2, AlertCircle } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, AlertCircle, Zap, Loader2 } from "lucide-react";
 import CreateProduct from "../../components/productModal/CreateProduct";
 import { fetchVendorProductsApi, deleteProductApi } from "../../api/productApi.js";
+import { useAuth } from "../../context/AuthContext.jsx"; // Pulling context to inspect account subscription tiers
 
 function ProductCard({ product, onEdit, onDelete }) {
-  // Safe format checker for numeric prices vs fallback strings
   const displayPrice = typeof product.price === "number" 
     ? `₦${product.price.toLocaleString()}` 
     : product.price;
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden group hover:border-[#C3ECD7] hover:shadow-sm transition-all">
-      {/* Product Image */}
       <div className="aspect-square bg-slate-100 w-full relative">
         <img 
           src={product.image || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop"} 
@@ -186,7 +185,6 @@ function ProductCard({ product, onEdit, onDelete }) {
         )}
       </div>
       
-      {/* Product Info */}
       <div className="p-4 space-y-1">
         <p className="text-sm font-medium text-slate-900 truncate" title={product.name}>
           {product.name}
@@ -203,16 +201,21 @@ function ProductCard({ product, onEdit, onDelete }) {
 }
 
 export default function Products() {
+  const { user } = useAuth(); // Read account subscription characteristics
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState(null);
 
-  // Load the real backend product array
+  const isPro = user?.subscription?.plan === "Pro";
+  const hasReachedLimit = !isPro && products.length >= 7;
+
   const loadProducts = async () => {
     try {
+      setIsLoading(true);
       setError("");
       const resData = await fetchVendorProductsApi();
       if (resData.success) {
@@ -220,6 +223,8 @@ export default function Products() {
       }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load your catalog collection.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -228,6 +233,10 @@ export default function Products() {
   }, []);
 
   const handleOpenCreate = () => {
+    if (hasReachedLimit) {
+      alert("You have reached the maximum catalog limit of 7 products for Free accounts. Please upgrade your tier level configuration to list more items.");
+      return;
+    }
     setProductToEdit(null);
     setIsModalOpen(true);
   };
@@ -258,13 +267,34 @@ export default function Products() {
     p.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  if (isLoading) {
+    return (
+      <div className="min-h-[50vh] flex flex-col items-center justify-center gap-2">
+        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <p className="text-sm font-medium text-slate-500">Retrieving catalog assets...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {/* Status Alert Notification */}
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center gap-2 text-sm">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
+        </div>
+      )}
+
+      {/* Warning banner if a free tier storefront reaches exactly 7 products */}
+      {hasReachedLimit && (
+        <div className="p-4 bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-medium">
+          <div className="flex items-center gap-2.5">
+            <Zap className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
+            <span>You have utilized all <b>7 active catalog item slots</b> allowed on your basic plan. Upgrade to list unlimited products.</span>
+          </div>
+          <button className="px-3 py-1.5 bg-[#0F172A] text-white rounded-lg font-bold text-[11px] self-start sm:self-center">
+            Upgrade Tier
+          </button>
         </div>
       )}
 
@@ -277,7 +307,15 @@ export default function Products() {
           </p>
         </div>
         
-        <button onClick={handleOpenCreate} className="bg-[#0F172A] text-white hover:bg-slate-800 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors flex items-center gap-2 w-full sm:w-auto justify-center shadow-sm">
+        <button 
+          onClick={handleOpenCreate} 
+          disabled={hasReachedLimit}
+          className={`text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors flex items-center gap-2 w-full sm:w-auto justify-center shadow-sm ${
+            hasReachedLimit 
+              ? "bg-slate-200 text-slate-400 cursor-not-allowed" 
+              : "bg-[#0F172A] text-white hover:bg-slate-800"
+          }`}
+        >
           <Plus className="w-4 h-4 text-[#C3ECD7]" />
           <span>New product</span>
         </button>
@@ -285,7 +323,6 @@ export default function Products() {
 
       {/* Toolbar */}
       <div className="flex items-center gap-3">
-        {/* Search */}
         <div className="relative flex-1">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input 
@@ -297,7 +334,6 @@ export default function Products() {
           />
         </div>
         
-        {/* View Toggle (Restored exactly from original design mockup) */}
         <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm shrink-0">
           <button className="p-2.5 bg-[#0F172A] text-white transition-colors" title="Grid view">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -314,7 +350,7 @@ export default function Products() {
         </div>
       </div>
 
-      {/* Grid Display Conditional Core Engine */}
+      {/* Grid Display */}
       {products.length === 0 ? (
         <div className="text-center bg-slate-50 border border-dashed border-slate-200 rounded-2xl py-20 px-4">
           <div className="w-12 h-12 text-slate-300 mx-auto mb-3 flex items-center justify-center">
@@ -326,7 +362,13 @@ export default function Products() {
           <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto mb-6">
             Your catalog environment pipeline is empty. Let's create your first retail storefront item.
           </p>
-          <button onClick={handleOpenCreate} className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#C3ECD7] text-emerald-900 rounded-xl text-xs font-bold hover:bg-[#a9dbc0] transition-colors">
+          <button 
+            onClick={handleOpenCreate} 
+            disabled={hasReachedLimit}
+            className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
+              hasReachedLimit ? "bg-slate-200 text-slate-400 cursor-not-allowed" : "bg-[#C3ECD7] text-emerald-900 hover:bg-[#a9dbc0]"
+            }`}
+          >
             <Plus className="w-3.5 h-3.5" />
             Add First Product
           </button>

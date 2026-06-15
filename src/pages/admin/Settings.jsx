@@ -25,6 +25,8 @@ import NotificationsSettings from "../../components/settingsModal/Notifications"
 import SecuritySettings from "../../components/settingsModal/Security";
 import BillingSettings from "../../components/settingsModal/Billing";
 import { SectionCard, FormField, ToggleRow } from "../../components/settingsModal/Shared";
+import { useAuth } from "../../context/AuthContext.jsx";
+import API from "../../api/axios.js";
 
 /* ─────────────────────────────────────────────
    Tab pill nav
@@ -41,27 +43,77 @@ const TABS = [
    Main Settings Page
 ═══════════════════════════════════════════════ */
 export default function Settings() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
   const avatarRef = useRef(null);
 
   /* ── Profile state ── */
   const [profile, setProfile] = useState({
-    firstName: "Adaeze",
-    lastName: "Enyinnaya",
-    email: "adaeze@luxe-boutique.com",
-    phone: "+234 703 375 4987",
-    avatar: null,
+    firstName: user?.businessName?.split(" ")[0] || "Vendor",
+    lastName: user?.businessName?.split(" ").slice(1).join(" ") || "",
+    email: user?.email || "",
+    phone: user?.phoneNumber || "",
+    avatar: user?.profilePicture || null,
   });
 
   const handleProfile  = (e) => setProfile((p) => ({ ...p, [e.target.name]: e.target.value }));
 
-  /* Avatar via FileReader */
-  const handleAvatarUpload = (e) => {
+  /* Avatar via Cloudinary API */
+  const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => setProfile((p) => ({ ...p, avatar: reader.result }));
-    reader.readAsDataURL(file);
+
+    const formData = new FormData();
+    formData.append("profilePicture", file);
+
+    try {
+      const res = await API.put("/settings/profile-picture", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      if (res.data.statusCode === 200) {
+        setProfile((p) => ({ ...p, avatar: res.data.data.profilePicture }));
+        alert("Profile picture updated!");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to upload profile picture");
+    }
+  };
+
+  /* ── Delete Account Modal State ── */
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [countdown, setCountdown] = useState(10);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  React.useEffect(() => {
+    let timer;
+    if (deleteModalOpen && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((c) => c - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [deleteModalOpen, countdown]);
+
+  const handleDeleteAccountClick = () => {
+    setDeleteModalOpen(true);
+    setCountdown(10);
+    setDeleteConfirmText("");
+  };
+
+  const confirmAccountDeletion = async () => {
+    if (deleteConfirmText !== "DELETE" || countdown > 0) return;
+    try {
+      setIsDeleting(true);
+      await API.delete("/settings/account");
+      alert("Account deleted successfully.");
+      window.location.href = "/auth/login";
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete account.");
+      setIsDeleting(false);
+    }
   };
 
   /* ── Store state ── */
@@ -182,11 +234,62 @@ export default function Settings() {
                 <p className="text-sm font-semibold text-rose-800">Delete account</p>
                 <p className="text-xs text-rose-600 mt-0.5">This will permanently delete all your data and cannot be undone.</p>
               </div>
-              <button className="flex items-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-xl transition-colors shrink-0">
+              <button 
+                onClick={handleDeleteAccountClick}
+                className="flex items-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-xl transition-colors shrink-0"
+              >
                 <Trash2 className="w-4 h-4" /> Delete account
               </button>
             </div>
           </SectionCard>
+        </div>
+      )}
+
+      {/* Delete Account Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden p-6 text-center">
+            <AlertTriangle className="w-12 h-12 text-rose-600 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Are you absolutely sure?</h3>
+            <p className="text-sm text-slate-500 mb-4">
+              This action cannot be undone. This will permanently delete your account, including all products, orders, and customer data.
+            </p>
+            <p className="text-sm text-slate-700 mb-4 font-medium">
+              Please type <span className="font-bold text-rose-600 select-all">DELETE</span> to confirm.
+            </p>
+            <input
+              type="text"
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder="DELETE"
+              className="w-full text-center px-4 py-2 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent font-bold text-slate-800"
+            />
+            {countdown > 0 && (
+              <p className="text-xs text-rose-500 mb-4 font-bold animate-pulse">
+                Action available in {countdown} seconds...
+              </p>
+            )}
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={() => setDeleteModalOpen(false)}
+                className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors"
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmAccountDeletion}
+                disabled={deleteConfirmText !== "DELETE" || countdown > 0 || isDeleting}
+                className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm ${
+                  deleteConfirmText === "DELETE" && countdown === 0 && !isDeleting
+                    ? "bg-rose-600 hover:bg-rose-700 text-white"
+                    : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                }`}
+              >
+                {isDeleting ? "Deleting..." : "Permanently Delete"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -403,7 +506,7 @@ export default function Settings() {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-slate-800">Email verification</p>
-                <p className="text-xs text-slate-500 mt-0.5">adaeze@luxe-boutique.com</p>
+                <p className="text-xs text-slate-500 mt-0.5">{profile.email || user?.email}</p>
               </div>
               <span className="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full">
                 <Check className="w-3 h-3" /> Verified

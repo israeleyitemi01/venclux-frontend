@@ -1,7 +1,14 @@
 import React from "react";
 import { Search, Bell, Plus, Menu, ChevronDown } from "lucide-react";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 export default function Header({ setIsSidebarOpen }) {
+  const { user } = useAuth();
+  
+  // Extract initials
+  const rawName = user?.name || user?.businessName || "Vendor";
+  const initials = rawName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+
   return (
     <header className="h-16 border-b border-slate-200 bg-white fixed top-0 left-0 md:left-64 right-0 z-10 px-4 md:px-8 flex items-center justify-between">
       {/* Mobile Menu Toggle & Search */}
@@ -33,7 +40,7 @@ export default function Header({ setIsSidebarOpen }) {
         <button className="relative text-slate-500 hover:bg-slate-100 p-1 rounded-lg transition-colors">
           <Bell className="w-5 h-5" />
           <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full border-2 border-white">
-            3
+            0
           </span>
         </button>
 
@@ -49,11 +56,15 @@ export default function Header({ setIsSidebarOpen }) {
         {/* User Profile */}
         <div className="flex items-center gap-3">
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-semibold text-slate-900 leading-tight">Adaeze O.</p>
+            <p className="text-sm font-semibold text-slate-900 leading-tight">{rawName}</p>
             <p className="text-xs text-slate-500 leading-tight">Vendor</p>
           </div>
-          <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-300">
-            {/* Avatar placeholder - just grey bg in the design, maybe with an icon */}
+          <div className="w-8 h-8 rounded-full bg-[#C3ECD7] flex items-center justify-center font-bold text-slate-700 overflow-hidden border border-slate-300">
+            {user?.profilePicture ? (
+               <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+               <span className="text-xs">{initials}</span>
+            )}
           </div>
           {/* <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" /> */}
         </div>

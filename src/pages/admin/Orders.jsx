@@ -99,6 +99,7 @@ import {
   MoreHorizontal,
   Loader2,
   AlertCircle,
+  X,
 } from "lucide-react";
 import Table from "../../components/shared/Table";
 import StatusBadge from "../../components/shared/StatusBadge";
@@ -139,28 +140,28 @@ export default function Orders() {
     fetchLiveOrders();
   }, []);
 
-  // 2. Action handler to update status fields inline
-  const handleStatusChange = async (trackingId, currentStatus) => {
-    const nextStatusMap = {
-      PENDING: "PROCESSING",
-      PROCESSING: "SHIPPED",
-      SHIPPED: "DELIVERED",
-      DELIVERED: "PENDING",
-    };
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("");
 
-    const targetStatus =
-      nextStatusMap[currentStatus.toUpperCase()] || "PENDING";
+  const openStatusModal = (order) => {
+    setSelectedOrder(order);
+    setSelectedStatus(order.status || "PENDING");
+    setStatusModalOpen(true);
+  };
 
+  const submitStatusChange = async () => {
+    if (!selectedOrder) return;
     try {
-      const response = await orderApi.updateStatus(trackingId, targetStatus);
+      const response = await orderApi.updateStatus(selectedOrder.trackingId, selectedStatus);
       if (response.success) {
-        // Optimistically update local array state
         setOrders((prev) =>
           prev.map((o) =>
-            o.trackingId === trackingId ? { ...o, status: targetStatus } : o,
+            o.trackingId === selectedOrder.trackingId ? { ...o, status: selectedStatus } : o,
           ),
         );
-        alert(`Order #${trackingId} advanced safely to ${targetStatus}!`);
+        alert(`Order #${selectedOrder.trackingId} updated to ${selectedStatus}!`);
+        setStatusModalOpen(false);
       }
     } catch (err) {
       console.error("Failed to cycle order pipeline step:", err);
@@ -297,10 +298,10 @@ export default function Orders() {
       accessor: "action",
       render: (row) => (
         <button
-          onClick={() => handleStatusChange(row.trackingId, row.status)}
-          className="flex items-center gap-1 p-1 text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 rounded-lg text-xs font-semibold transition-colors"
+          onClick={() => openStatusModal(row)}
+          className="flex items-center gap-1 px-3 py-1.5 text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 rounded-lg text-xs font-semibold transition-colors"
         >
-          Cycle Status <MoreHorizontal className="w-3 h-3" />
+          Update Status
         </button>
       ),
     },
@@ -387,6 +388,58 @@ export default function Orders() {
           onPageChange={setCurrentPage}
         />
       </div>
+
+      {/* Status Modal Component */}
+      {statusModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-4 border-b border-slate-100">
+              <h3 className="font-bold text-slate-800">Update Order Status</h3>
+              <button 
+                onClick={() => setStatusModalOpen(false)}
+                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-4 space-y-3">
+              <p className="text-sm text-slate-500 mb-2">
+                Select a new fulfillment status for order <span className="font-bold text-slate-800">#{selectedOrder?.trackingId}</span>.
+              </p>
+              
+              {["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"].map((status) => (
+                <label key={status} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${selectedStatus === status ? "border-[#C3ECD7] bg-emerald-50" : "border-slate-200 hover:border-slate-300"}`}>
+                  <input
+                    type="radio"
+                    name="orderStatus"
+                    value={status}
+                    checked={selectedStatus === status}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
+                    className="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300"
+                  />
+                  <span className="text-sm font-semibold text-slate-700">{status}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="p-4 border-t border-slate-100 flex gap-3">
+              <button 
+                onClick={() => setStatusModalOpen(false)}
+                className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={submitStatusChange}
+                className="flex-1 py-2 bg-[#0F172A] hover:bg-slate-800 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -116,7 +116,7 @@
 
 
 import React, { useState, useEffect } from "react";
-import { Search, Filter, Download, MoreHorizontal, Loader2 } from "lucide-react";
+import { Search, Filter, Download, MoreHorizontal, Loader2, Trash2 } from "lucide-react";
 import Table from "../../components/shared/Table";
 import StatusBadge from "../../components/shared/StatusBadge";
 import Pagination from "../../components/shared/Pagination";
@@ -154,6 +154,20 @@ export default function Customers() {
 
     fetchCustomersData();
   }, []);
+
+  const handleDeleteCustomer = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this customer? This action cannot be undone.")) return;
+    try {
+      const response = await API.delete(`/customers/${id}`);
+      if (response.data.success) {
+        setCustomers((prev) => prev.filter(c => c.id !== id));
+        alert("Customer deleted successfully.");
+      }
+    } catch (err) {
+      console.error("Failed to delete customer:", err);
+      alert("Failed to delete customer.");
+    }
+  };
 
   // 2. Client Side Search filtering loop execution 
   useEffect(() => {
@@ -206,9 +220,13 @@ export default function Customers() {
     { header: "SPENT", accessor: "spent", cellClassName: "font-semibold text-slate-900" },
     { header: "LAST ORDER", accessor: "lastOrder", cellClassName: "text-slate-500 text-xs" },
     { header: "STATUS", accessor: "status", render: (row) => <StatusBadge status={row.status} /> },
-    { header: "", accessor: "action", render: () => (
-      <button className="p-1 text-slate-400 hover:text-slate-600 rounded">
-        <MoreHorizontal className="w-5 h-5" />
+    { header: "", accessor: "action", render: (row) => (
+      <button 
+        onClick={() => handleDeleteCustomer(row.id)}
+        className="p-1.5 text-rose-500 hover:bg-rose-50 hover:text-rose-600 rounded transition-colors"
+        title="Delete Customer"
+      >
+        <Trash2 className="w-4 h-4" />
       </button>
     )}
   ];

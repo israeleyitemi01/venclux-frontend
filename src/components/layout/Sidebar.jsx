@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutGrid, 
   ShoppingBag, 
@@ -13,9 +13,12 @@ import {
   Copy,
   X
 } from "lucide-react"; 
+import { useAuth } from "../../context/AuthContext.jsx";
 
 export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
     const location = useLocation();
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
 
     // sidebar navigation items 
     const navItems = [
@@ -31,9 +34,18 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
 
     // Helper to handle copying storefront link to clipboard
   const handleCopyLink = () => {
-    navigator.clipboard.writeText("venclux.com/shop/luxe-boutique");
+    const storeSlug = user?.storeSlug || "shop";
+    navigator.clipboard.writeText(`${window.location.origin}/shop/${storeSlug}`);
     alert("Storefront link copied!");
   };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/auth/login");
+  };
+
+  const storeName = user?.businessName || user?.name || "";
+  const storeInitials = storeName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "LB";
 
   return (
     <>
@@ -48,7 +60,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
       {/* Sidebar Drawer */}
       <aside className={`w-64 bg-[#0F172A] text-slate-400 h-screen fixed left-0 top-0 flex flex-col justify-between border-r border-slate-800 z-30 transition-transform duration-300 ease-in-out md:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         {/* Upper Brand & Navigation */}
-        <div className="overflow-y-auto">
+        <div className="overflow-y-auto scrollbar-hide">
           {/* Brand Header */}
           <div className="p-6 flex items-center justify-between border-b border-slate-800 sticky top-0 bg-[#0F172A] z-10">
             <div className="flex items-center gap-2">
@@ -92,20 +104,24 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
         </div>
 
         {/* Bottom Storefront Widget & Profile Footer */}
-        <div className="p-4 space-y-4 border-t border-slate-800 bg-[#0F172A]">
+        <div className="p-4 space-y-4 border-t border-slate-800 bg-[#0F172A] shrink-0">
 
           {/* User Profile Info Footer */}
           <div className="flex items-center justify-between pt-2">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-full bg-[#C3ECD7] text-slate-900 font-semibold flex items-center justify-center text-sm">
-                LB
+              <div className="w-9 h-9 rounded-full bg-[#C3ECD7] text-slate-900 font-semibold flex items-center justify-center text-sm overflow-hidden">
+                {user?.profilePicture ? (
+                   <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                   <span>{storeInitials}</span>
+                )}
               </div>
               <div className="truncate w-28">
-                <p className="text-sm font-medium text-white truncate">Luxe Boutique</p>
+                <p className="text-sm font-medium text-white truncate">{storeName}</p>
                 <p className="text-xs text-slate-500 truncate">Vendor Portal</p>
               </div>
             </div>
-            <button className="p-1.5 rounded-lg hover:bg-slate-900 text-slate-500 hover:text-rose-400 transition-colors">
+            <button onClick={handleLogout} className="p-1.5 rounded-lg hover:bg-slate-900 text-slate-500 hover:text-rose-400 transition-colors" title="Logout">
               <LogOut className="w-5 h-5" />
             </button>
           </div>
