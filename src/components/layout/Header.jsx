@@ -5,6 +5,11 @@ import { useNavigate } from "react-router-dom";
 export default function Header({ setIsSidebarOpen }) {
   const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
+
+  // Extract initials
+  const rawName = user?.name || user?.businessName || "Vendor";
+  const initials = rawName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
 
