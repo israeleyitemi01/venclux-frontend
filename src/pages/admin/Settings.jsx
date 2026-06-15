@@ -43,7 +43,7 @@ const TABS = [
    Main Settings Page
 ═══════════════════════════════════════════════ */
 export default function Settings() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
   const avatarRef = useRef(null);
 
@@ -60,12 +60,13 @@ export default function Settings() {
 
   const handleSaveProfile = async () => {
     try {
-      const res = await API.put("/settings/profile", {
+      const res = await API.put("/vendor/settings/profile", {
         firstName: profile.firstName,
         lastName: profile.lastName,
         phone: profile.phone
       });
       if (res.data.statusCode === 200) {
+        updateUser({ name: `${profile.firstName} ${profile.lastName}`.trim(), whatsappNumber: profile.phone });
         saveToast("Profile saved successfully!");
       }
     } catch (err) {
@@ -83,11 +84,13 @@ export default function Settings() {
     formData.append("image", file);
 
     try {
-      const res = await API.put("/settings/profile-picture", formData, {
+      const res = await API.put("/vendor/settings/profile-picture", formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.statusCode === 200) {
-        setProfile((p) => ({ ...p, avatar: res.data.data.profilePicture }));
+        const newAvatar = res.data.data.profilePicture;
+        setProfile((p) => ({ ...p, avatar: newAvatar }));
+        updateUser({ profilePicture: newAvatar });
         alert("Profile picture updated!");
       }
     } catch (err) {
@@ -122,7 +125,7 @@ export default function Settings() {
     if (deleteConfirmText !== "DELETE" || countdown > 0) return;
     try {
       setIsDeleting(true);
-      await API.delete("/settings/account");
+      await API.delete("/vendor/settings/account");
       alert("Account deleted successfully.");
       window.location.href = "/auth/login";
     } catch (err) {

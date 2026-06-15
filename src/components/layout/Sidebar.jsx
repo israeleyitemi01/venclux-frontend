@@ -32,15 +32,6 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
       { name: "Settings", path: "/admin/settings", icon: Settings },
     ];
 
-    const [copied, setCopied] = useState(false);
-
-    // Helper to handle copying storefront link to clipboard
-  const handleCopyLink = () => {
-    const storeSlug = user?.storeSlug || "shop";
-    navigator.clipboard.writeText(`https://www.venclux.site/shop/${storeSlug}`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to log out?")) {
@@ -111,12 +102,6 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
         {/* Bottom Storefront Widget & Profile Footer */}
         <div className="p-4 space-y-4 border-t border-slate-800 bg-[#0F172A] shrink-0">
           
-          <button 
-            onClick={handleCopyLink}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold rounded-lg transition-colors border border-slate-700"
-          >
-            {copied ? <span className="text-emerald-400 font-bold">Copied!</span> : <><Copy className="w-4 h-4" /> Copy Storefront Link</>}
-          </button>
 
           {/* User Profile Info Footer */}
           <div className="flex items-center justify-between pt-2">

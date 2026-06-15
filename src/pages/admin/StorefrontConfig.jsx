@@ -74,13 +74,7 @@ export default function StorefrontConfig() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
-  const [copied, setCopied] = useState(false);
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(`https://www.venclux.site/shop/${formData.storeSlug || ""}`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const logoInputRef = useRef(null);
   const bannerInputRef = useRef(null);
@@ -202,14 +196,7 @@ export default function StorefrontConfig() {
           <p className="text-sm text-slate-500 mt-1">Customize what customers see when they visit.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleCopyLink}
-            className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors bg-white shadow-sm relative"
-          >
-            {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-            {copied ? <span className="text-emerald-600">Copied!</span> : "Copy link"}
-          </button>
+
           <a
             href={`https://www.venclux.site/shop/${formData.storeSlug}`}
             target="_blank"
@@ -387,7 +374,7 @@ export default function StorefrontConfig() {
                 </div>
               </div>
               <div className="border-t border-slate-100 px-5 py-3 flex items-center justify-between bg-slate-50/50">
-                <span className="text-xs text-slate-400">Store slug target: <b className="text-slate-600 font-mono">/shop/{formData.storeSlug || "..."}</b></span>
+                <span className="text-xs text-slate-400">www.venclux.site<b className="text-slate-600 font-mono">/shop/{formData.storeSlug || "..."}</b></span>
               </div>
             </div>
           </div>
