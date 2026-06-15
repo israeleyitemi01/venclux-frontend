@@ -108,9 +108,11 @@ export default function Header({ setIsSidebarOpen }) {
           className="relative text-slate-500 hover:bg-slate-100 p-1 rounded-lg transition-colors"
         >
           <Bell className="w-5 h-5" />
-          <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full border-2 border-white">
-            {user?.unreadNotifications || 0}
-          </span>
+          {user?.unreadNotifications > 0 && (
+            <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full border-2 border-white">
+              {user.unreadNotifications}
+            </span>
+          )}
         </button>
 
         {/* Quick Action Button */}
