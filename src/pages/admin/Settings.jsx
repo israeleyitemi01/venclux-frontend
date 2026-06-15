@@ -80,7 +80,7 @@ export default function Settings() {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append("profilePicture", file);
+    formData.append("image", file);
 
     try {
       const res = await API.put("/settings/profile-picture", formData, {
@@ -134,8 +134,8 @@ export default function Settings() {
 
   /* ── Store state ── */
   const [store, setStore] = useState({
-    storeName: "Luxe Boutique",
-    storeSlug: "luxe-boutique",
+    storeName: user?.businessName || "",
+    storeSlug: user?.storeSlug || "",
     currency: "NGN",
     language: "en",
     timezone: "Africa/Lagos",
@@ -317,7 +317,7 @@ export default function Settings() {
           <SectionCard icon={Store} title="Store identity" description="How your store appears across Venclux.">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField label="Store name"  name="storeName"  value={store.storeName}  onChange={handleStore} placeholder="e.g. Luxe Boutique" />
-              <FormField label="Store URL"   name="storeSlug"  value={store.storeSlug}  onChange={handleStore} placeholder="your-store" prefix="venclux.com/shop/" hint="Only lowercase letters, numbers and hyphens." />
+              <FormField label="Store URL"   name="storeSlug"  value={store.storeSlug}  onChange={handleStore} placeholder="your-store" prefix="www.venclux.site/shop/" hint="Only lowercase letters, numbers and hyphens." />
             </div>
             <div className="flex justify-end pt-2">
               <button

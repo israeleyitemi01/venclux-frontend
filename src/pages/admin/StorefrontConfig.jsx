@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Upload, Eye, ExternalLink, Mail, Phone, Globe, Pencil, Loader2, Save } from "lucide-react";
+import { Upload, Eye, ExternalLink, Mail, Phone, Globe, Pencil, Loader2, Save, Copy, Check } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.jsx"; 
 import API from "../../api/axios.js";
 
@@ -74,6 +74,13 @@ export default function StorefrontConfig() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(`https://www.venclux.site/shop/${formData.storeSlug || ""}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const logoInputRef = useRef(null);
   const bannerInputRef = useRef(null);
@@ -194,15 +201,25 @@ export default function StorefrontConfig() {
           <h1 className="text-2xl font-bold text-slate-900">Storefront</h1>
           <p className="text-sm text-slate-500 mt-1">Customize what customers see when they visit.</p>
         </div>
-        <a
-          href={`${window.location.origin}/shop/${formData.storeSlug}`}
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors bg-white shadow-sm"
-        >
-          <Eye className="w-4 h-4" />
-          View live
-        </a>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors bg-white shadow-sm relative"
+          >
+            {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+            {copied ? <span className="text-emerald-600">Copied!</span> : "Copy link"}
+          </button>
+          <a
+            href={`https://www.venclux.site/shop/${formData.storeSlug}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors bg-white shadow-sm"
+          >
+            <Eye className="w-4 h-4" />
+            View live
+          </a>
+        </div>
       </div>
 
       <form onSubmit={handleSaveConfig} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -213,7 +230,7 @@ export default function StorefrontConfig() {
             <div className="space-y-4">
               <FormField label="Store name" name="storeName" value={formData.storeName} onChange={handleChange} placeholder="Luxe Boutique" />
               <FormField label="Tagline" name="tagline" value={formData.tagline} onChange={handleChange} placeholder="Premium essentials, made in Lagos." />
-              <FormField label="Store slug" name="storeSlug" value={formData.storeSlug} onChange={handleChange} placeholder="luxe-boutique" prefix="venclux.com/shop/" />
+              <FormField label="Store slug" name="storeSlug" value={formData.storeSlug} onChange={handleChange} placeholder="luxe-boutique" prefix="www.venclux.site/shop/" />
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1.5">Store description</label>
                 <div className="relative">

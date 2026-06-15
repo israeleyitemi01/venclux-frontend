@@ -156,7 +156,7 @@ export default function Customers() {
   }, []);
 
   const handleDeleteCustomer = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this customer? This action cannot be undone.")) return;
+    if (!window.confirm("Are you sure you want to delete customer?")) return;
     try {
       const response = await API.delete(`/customers/${id}`);
       if (response.data.success) {

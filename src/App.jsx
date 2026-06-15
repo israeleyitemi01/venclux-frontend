@@ -18,6 +18,7 @@ import Automation from "./pages/admin/Automation";
 import StorefrontConfig from "./pages/admin/StorefrontConfig";
 import Analytics from "./pages/admin/Analytics";
 import Settings from "./pages/admin/Settings";
+import SearchResults from "./pages/admin/SearchResults";
 
 // Public Storefront Pages
 import VendorStore from "./pages/public/VendorStore";
@@ -58,6 +59,7 @@ function App() {
               <Route path="storefront" element={<StorefrontConfig />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="search" element={<SearchResults />} />
             </Route>
 
             {/* Public Storefront Customer Routes */}

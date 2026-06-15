@@ -1549,7 +1549,7 @@ import { useNavigate } from "react-router-dom";
 import { 
   ShoppingBag, Clock, CheckCircle2, Users, 
   Copy, MessageSquare, Store, Shirt, Loader2,
-  ChevronRight, AlertCircle
+  ChevronRight, AlertCircle, Check
 } from "lucide-react";
 import { 
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid 
@@ -1564,6 +1564,7 @@ export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const rawName = user?.name || user?.businessName || "Merchant";
   const firstName = rawName.trim().split(" ")[0];
@@ -1605,8 +1606,9 @@ export default function Dashboard() {
   }, [salesData]);
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(storefrontUrl);
-    alert("Storefront link copied to clipboard!");
+    navigator.clipboard.writeText(`https://www.venclux.site/shop/${vendorStoreSlug}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   if (isLoading) {
@@ -1659,8 +1661,8 @@ export default function Dashboard() {
               onClick={handleCopyLink}
               className="ml-auto bg-[#C3ECD7] text-emerald-900 hover:bg-[#a9dbc0] px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shrink-0"
             >
-              <Copy className="w-3.5 h-3.5" />
-              Copy Link
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-700" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <span className="text-emerald-700">Copied!</span> : "Copy Link"}
             </button>
           </div>
           
