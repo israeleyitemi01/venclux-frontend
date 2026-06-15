@@ -54,6 +54,26 @@ export default function Header({ setIsSidebarOpen }) {
       navigate(`/admin/search?q=${encodeURIComponent(query)}`);
     }
   };
+
+  const handleNotificationClick = async () => {
+    navigate('/admin/orders');
+    if (user?.unreadNotifications > 0) {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/vendor/settings/notifications/clear`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('venclux_token')}`
+          }
+        });
+        const data = await response.json();
+        if (data.statusCode === 200) {
+          updateUser({ unreadNotifications: 0 });
+        }
+      } catch (err) {
+        console.error("Failed to clear notifications", err);
+      }
+    }
+  };
   return (
     <header className="h-16 border-b border-slate-200 bg-white fixed top-0 left-0 md:left-64 right-0 z-10 px-4 md:px-8 flex items-center justify-between">
       {/* Mobile Menu Toggle & Search */}
@@ -84,7 +104,7 @@ export default function Header({ setIsSidebarOpen }) {
       <div className="flex items-center gap-3 md:gap-6">
         {/* Notification Bell */}
         <button 
-          onClick={() => navigate('/admin/orders')}
+          onClick={handleNotificationClick}
           className="relative text-slate-500 hover:bg-slate-100 p-1 rounded-lg transition-colors"
         >
           <Bell className="w-5 h-5" />
