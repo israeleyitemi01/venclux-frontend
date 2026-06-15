@@ -40,7 +40,7 @@ export default function Header({ setIsSidebarOpen }) {
         <button className="relative text-slate-500 hover:bg-slate-100 p-1 rounded-lg transition-colors">
           <Bell className="w-5 h-5" />
           <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full border-2 border-white">
-            0
+            {user?.unreadNotifications || 0}
           </span>
         </button>
 

@@ -40,8 +40,10 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
   };
 
   const handleLogout = () => {
-    logout();
-    navigate("/auth/login");
+    if (window.confirm("Are you sure you want to log out?")) {
+      logout();
+      navigate("/auth/login");
+    }
   };
 
   const storeName = user?.businessName || user?.name || "";

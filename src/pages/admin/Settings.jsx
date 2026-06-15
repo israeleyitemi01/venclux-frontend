@@ -58,6 +58,22 @@ export default function Settings() {
 
   const handleProfile  = (e) => setProfile((p) => ({ ...p, [e.target.name]: e.target.value }));
 
+  const handleSaveProfile = async () => {
+    try {
+      const res = await API.put("/settings/profile", {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        phone: profile.phone
+      });
+      if (res.data.statusCode === 200) {
+        saveToast("Profile saved successfully!");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save profile.");
+    }
+  };
+
   /* Avatar via Cloudinary API */
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
@@ -88,13 +104,13 @@ export default function Settings() {
 
   React.useEffect(() => {
     let timer;
-    if (deleteModalOpen && countdown > 0) {
+    if (deleteModalOpen && deleteConfirmText === "DELETE" && countdown > 0) {
       timer = setInterval(() => {
         setCountdown((c) => c - 1);
       }, 1000);
     }
     return () => clearInterval(timer);
-  }, [deleteModalOpen, countdown]);
+  }, [deleteModalOpen, deleteConfirmText, countdown]);
 
   const handleDeleteAccountClick = () => {
     setDeleteModalOpen(true);
@@ -219,7 +235,7 @@ export default function Settings() {
 
             <div className="flex justify-end pt-2">
               <button
-                onClick={() => saveToast("Profile saved!")}
+                onClick={handleSaveProfile}
                 className="flex items-center gap-2 px-5 py-2.5 bg-[#0F172A] hover:bg-slate-800 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors"
               >
                 <Check className="w-4 h-4 text-[#C3ECD7]" /> Save changes
@@ -261,7 +277,7 @@ export default function Settings() {
               type="text"
               value={deleteConfirmText}
               onChange={(e) => setDeleteConfirmText(e.target.value)}
-              placeholder="DELETE"
+              placeholder=""
               className="w-full text-center px-4 py-2 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent font-bold text-slate-800"
             />
             {countdown > 0 && (

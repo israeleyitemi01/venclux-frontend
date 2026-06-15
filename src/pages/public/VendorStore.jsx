@@ -437,7 +437,12 @@ export default function VendorStore() {
                       <ShoppingBag className="w-8 h-8" />
                     </div>
                   )}
-                  {product.badge && (
+                  {product.stock <= 5 && (
+                    <div className="absolute top-3 left-3">
+                       <span className="px-2 py-1 bg-rose-50 text-rose-700 text-[10px] font-bold rounded-md">Low Stock</span>
+                    </div>
+                  )}
+                  {product.stock > 5 && product.badge && (
                     <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500 text-white">
                       {product.badge}
                     </div>
